@@ -136,3 +136,142 @@ curl и тут нам поможет.
 ![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/f85f3ab8-59a7-4f91-84b6-4bb45c7c2baa)
 
 **Ответ:** H0CTF{D0_YoU_R34d_L0gs_HUH}
+
+## 05. Сквозь тернии к...
+
+Рассмотрим sniffed.cap поближе. aircrack-ng рассмотрел в нём несколько точек, от одной есть хендшейк. Брутим пароль 8-ю цифрами
+
+Получаем пароль от WiFi == 11031943
+
+Расшифровываем траффик сетки в Wireshark
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/e0f58957-2044-46bc-88d6-16e9863c3774)
+
+В отдельных запросах находим мыло darkestpart@gmail.com и на breachdirectory пароль от него -- sources00, но они нам уже не нужны, ибо мы обошли логин почты.
+
+Интересно нам сейчас расположение админки -- /admin_f7Z0pjDe3LmeR1/login.php
+
+Переходим -- ![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/81b8997e-49d7-4174-9c81-134da258d161)
+
+Пробуем обойти IP фильтр. Самая распространённая техника обхода -- заголовок X-Forwarded-For: <SPOOFED_IP>
+
+В украденом трафике видим респонс от info.php со строкой "Ваш IP адресс: 185.193.196.99"
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/014eb7d8-dc7b-4de2-8cba-497e79596247)
+
+Пробуем подставить заголовок, я для этого воспользовался прокси от бёрп сьюта
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/68a4af54-ae27-4062-a5b9-e814e9e82266)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/2a308124-e425-43a3-bc0e-6a318bd97a81)
+
+**Ответ:** H0CTF{X_F0Rw4Rd3d_FOR_Byp4sS}
+
+## 08. Вапросав многа
+
+Теперь задача -- зайти в админку. У нас есть логин и хэш пароля с известной солью из дампа БД, добытого с почты->логов. Посмотрим на хэш поближе
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/51e02906-acf8-4017-8d10-bf313b991240)
+
+Хашид подсказывает, что вероятный формат -- md5 с солью
+
+Глянем форматы котёнка
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/1ec264cb-6e8d-4b54-b6b5-ae7a9f43982d)
+
+Форматы 10, 20 и 3800 не подошли, но звёзды сошлись на формате m3710
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/0a98495a-cd18-43cd-aa17-2f704970f8d8)
+
+Логинимся в админку и отвечаем на контрольные вопросы, пользуясь собранной для I-III инфой.
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/345e4846-3def-4b9a-b6ed-917f5dcfb15f)
+
+**Ответ:** H0CTF{T00_S7roNG_2FA_0r_NoT}
+
+## 09. Защита от защиты
+
+upload.php требует пароль, печально. Но не сдаёмся! Начинаем насиловать comments.php. В этот раз он функционирует иначе... Теперь при передаче билиберды в ?approved= сервер возвращает 500, а не устанавливает в approved дефолтные значения. Рассмотрим поближе, а именно с точки зрения SQL инъекций.
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/67e263c7-1030-4b91-b013-ee62ca583cf1)
+
+Получилось дважды селектнуть из одной бдшки, теперь пробуем другие таблицы
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/26af5a97-c099-4ef0-96b4-6565eda07f99)
+
+Ура! Вещи похожи на b64_encoded, поэтому бежим в кибершеф
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/6a51da67-2814-48a7-810d-9a14cc1959d6)
+
+а ключ не декодится, пока что оставием его как есть
+
+хмм, некий iv и ключ со странной строкой, гуглим IV cipher, понимаем, что шифр -- aes
+
+успешно декодим и получаем пароль от upload.php
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/fb3f7eec-265c-4fa6-903f-f90a24a9cd06)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/b26ddee9-47a2-4d56-aeb9-a76e6c81e4dc)
+
+**Ответ:** H0CTF{SQL1_4nD_3NcRyP710N}
+## 10. Заметь слона
+
+Пытаемся залить php-shell, ловит по расширению. А если .php3? Ловит по внутренностям, однако пропускает, если всё чисто.
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/16156a94-7b6d-4683-8cbd-dd1eb263de87)
+
+
+При попытке загрузить файл сильно больше, машинка подтупливает с ответом, а если расположить php-код под отвлекающей шапкой?
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/ca80fe9d-ad8f-400b-84e4-091f39fb8d4a)
+
+Юху! Мы на*брали баллов!
+
+Ранее в ФАЗЗЕ был замечен фалйики https://donthackme.ru/api/getfile.php, пробуем подставить новоиспечённый fileid
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/40c676ba-ad5d-43e8-b5ad-296e0cf4a0fc)
+
+***I'M IN***
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/d143ce05-4a25-4681-b100-f9e11abbde13)
+
+далее классика ползания по линуксу
+
+`ls -la .`
+`cat 0000f4k_Fl4G_H3re_f4k0000z3D.txt`
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/9b8511bb-54c5-4c0d-9fed-3884a7f04a82)
+
+**Ответ:** H0CTF{Upl04D_R3S7R1cti0Ns_BYp4SS}
+
+## 11. Мы дома... У кого?
+
+Для удобства дальнейшего проникновения прокидываем ревёрс шелл себе на C&C сервер
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/6da72f36-fbdf-4df3-9493-54776e204a3e) (стандартный ревёрс шелл через openbsd-netcat)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/1700c1f4-8d9b-46ee-81b4-6bd63a7dbaf3)
+
+тк пароля от http мы не знаем, начинаем искать второй самый страшный сон сисадмина -- SUID
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/b9498486-9c5a-4157-ad35-aaa191848aa9)
+
+Нашли кастомный файлик exec_srvstate. Подберёмся к нему поближе. А рядом-то лежит исходник
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/a4039089-a925-4c50-8603-753af937c212)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/6cef7bc7-2130-4394-8000-8862bbfe25f7)
+
+Расследуем далее
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/1a37b65d-82c2-4a91-9224-53ecda3ed1ec)
+
+Ууууу, да у нас тут eval(), выстреел в ногу и рикошет в достоинство. А файл /usr/share/nginx/html/state ещё и редактировать от http можно.
+
+Ну чтож поодкинем туда __impoort__('os').system('/bin/sh')
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/b47a6a0d-9c16-4865-a348-1540ecaf5ed7)
+
+Лезем в дом
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/f2c6f6f8-8195-475c-bf15-c868b748cf90)
+
+**Ответ:** H0CTF{Lp3_t0_Us3R_sUCc3SSfuLy}
+
