@@ -275,3 +275,28 @@ upload.php требует пароль, печально. Но не сдаёмс
 
 **Ответ:** H0CTF{Lp3_t0_Us3R_sUCc3SSfuLy}
 
+## 12. Я есть рут!
+
+Луркаем по юзерским файлам, изучаем .bash_history
+
+Ура, нормальный шелл
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/1dc9a156-70da-4427-9263-9a9315145528)
+
+Смотрим sudo -l
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/5352a132-f4cd-4798-971b-585b796ce4b0)
+
+доступен cowsay, ну это уже совсем изи
+
+Переходим на [gtfobins](https://gtfobins.github.io/#cowsay), и эксплойтим
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/9bcae3fb-d796-4bac-a7c5-1fe42fec1c76)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/f4b76ad7-494a-4c4e-b4f1-2dc6a019d7f1)
+
+![image](https://github.com/lavakalas/writeups_ctf/assets/42173474/1f545bfe-d62d-497a-a69e-3a7abd090104)
+
+**Ответ:** H0CTF{R0oT_Pr1vS_G41n3D_m4N}
+
+![]([https://tenor.com/bD4Eg.gif](https://github.com/lavakalas/writeups_ctf/blob/main/tenor.gif))
